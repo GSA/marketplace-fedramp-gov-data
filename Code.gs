@@ -219,7 +219,7 @@ function createJson(ss) {
   /**
    * Loop through values on this tab, filling fields.  Special processing generally happens at the bottom of the loop.
    */
-  for(var i = 1; i < masterAuthVals.length; i++) {
+  for(var i = 1; i < masterAuthVals.length && masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")] != ""; i++) {
   
     product = {};
 
@@ -356,7 +356,7 @@ function createJson(ss) {
   /**
    * Loop through values on this tab, filling fields.  Special processing generally happens at the bottom of the loop.
    */
-  for(var i = 1; i < masterAgencyVals.length; i++) {
+  for(var i = 1; i < masterAgencyVals.length && masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Agency ID")] != ""; i++) {
   
     agency = {};
 
@@ -368,7 +368,7 @@ function createJson(ss) {
 
       agency.sub = "";                 // Remove. We don't want it displayed twice on the webpage.
     }
-    
+
     agency.csp = concatParentSub(agency.parent, agency.sub);
 
     agency.logo = masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS, "Logo URL")];
@@ -438,7 +438,7 @@ function createJson(ss) {
   /**
    * Loop through values on this tab, filling fields.  Special processing generally happens at the bottom of the loop.
    */
-  for(var i = 1; i < master3paoVals.length; i++) {
+  for(var i = 1; i < master3paoVals.length && master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "3PAO ID#")] != ""; i++) {
   
     assessor = {};
 
@@ -1074,7 +1074,7 @@ function partCSP(arr, low, high)
   var temp;
 
   for (var j = low; j <= high - 1; j++) {
-
+  
     if (arr[j].csp.toLowerCase() < p.csp.toLowerCase()) {
   
       i++;
