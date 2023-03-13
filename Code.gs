@@ -61,6 +61,9 @@ const STATUS_AGENCY = "Now in Agency Review";
 const STATUS_PMO = "Now in PMO Review";
 const STATUS_AUTH = "Now Authorized";
 
+                      // ----+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
+const STRING_80_BYTES = "                                                                                ";
+
 /***************************************************************************************************/
 
 
@@ -155,6 +158,7 @@ function createJson(ss) {
 
     id: String,
     name: String,
+    csp: String,
     logo: String,
     service_offering: String,
     status: String,
@@ -221,6 +225,8 @@ function createJson(ss) {
 
     product.id = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")];
     product.name = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSP")];
+    product.csp = product.name; // To utilize sort
+
     product.logo = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Logo URL")];
     product.service_offering = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSO")];
     product.status = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Current Active Status?")];
@@ -308,7 +314,9 @@ function createJson(ss) {
 
     json.data.Products.push(product);             // Build array of Products
   }
-  
+
+  json.data.Products = quickSortOnObjectCSP(json.data.Products, 0, json.data.Products.length-1); // Sort
+
   /**
    * This object should ALWAYS contain more than 3 items before the splice(). If this
    * line blows up, there are bigger problems.
@@ -329,6 +337,7 @@ function createJson(ss) {
     id: String,
     parent: String,
     sub: String,
+    csp: String,
     logo: String,
     authorization: Number,
     reuse: Number,
@@ -359,6 +368,8 @@ function createJson(ss) {
 
       agency.sub = "";                 // Remove. We don't want it displayed twice on the webpage.
     }
+    
+    agency.csp = concatParentSub(agency.parent, agency.sub);
 
     agency.logo = masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS, "Logo URL")];
     agency.authorization = masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS, "Authorizations Number")];
@@ -389,6 +400,8 @@ function createJson(ss) {
     json.data.Agencies.push(agency);    // Build array of Agencies
   }
 
+  json.data.Agencies = quickSortOnObjectCSP(json.data.Agencies, 0, json.data.Agencies.length-1); 
+
   /***************************************************************************************************/
 
 
@@ -402,6 +415,7 @@ function createJson(ss) {
 
     id: String,
     name: String,
+    csp: String,
     logo: String,
     products_assessing: Number,
     accredited_since: String,
@@ -430,6 +444,8 @@ function createJson(ss) {
 
     assessor.id = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "3PAO ID#")];
     assessor.name = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "3PAO Name")];
+    assessor.csp = assessor.name;
+
     assessor.logo = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "Logo URL")];
     assessor.products_assessing = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "Products Assessing (Number)")];
 
@@ -459,6 +475,8 @@ function createJson(ss) {
 
     json.data.Assessors.push(assessor);    // Build array of Assessors
   }
+
+  json.data.Assessors = quickSortOnObjectCSP(json.data.Assessors, 0, json.data.Assessors.length-1); 
 
   /***************************************************************************************************/
 
@@ -1124,6 +1142,28 @@ function getFilterClassBucket(label, num) {
   }
 
   return s;
+}
+
+/***************************************************************************************************/
+
+
+/**
+ * Concat strings for sorting.  In order to sort nicely, the "parent" and "sub" are placed into 80 byte buffers.
+ * 
+ * @param {s1} - String to be concatenated and returned
+ * @param {s2} - String to be concatenated and returned
+ * @returns - String of two 80 byte strings 
+ */
+function concatParentSub(s1, s2) {
+
+  s1 = s1 + STRING_80_BYTES;
+  s1 = s1.slice(0,80);
+
+  s2 = s2 + STRING_80_BYTES;
+  s2 = s2.slice(0,80);
+
+  return s1 + s2;
+
 }
 
 /***************************************************************************************************/
