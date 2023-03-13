@@ -1074,8 +1074,8 @@ function partCSP(arr, low, high)
   var temp;
 
   for (var j = low; j <= high - 1; j++) {
-  
-    if (arr[j].csp < p.csp) {
+
+    if (arr[j].csp.toLowerCase() < p.csp.toLowerCase()) {
   
       i++;
   
