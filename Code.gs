@@ -159,6 +159,7 @@ function createJson(ss) {
     id: String,
     name: String,
     csp: String,
+    cso: String,
     logo: String,
     service_offering: String,
     status: String,
@@ -219,13 +220,16 @@ function createJson(ss) {
   /**
    * Loop through values on this tab, filling fields.  Special processing generally happens at the bottom of the loop.
    */
-  for(var i = 1; i < masterAuthVals.length && masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")] != ""; i++) {
+  for(var i = 1; i < masterAuthVals.length && 
+      masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")] != "" &&
+      masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSP")] != ""; i++) {
   
     product = {};
 
     product.id = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")];
     product.name = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSP")];
     product.csp = product.name; // To utilize sort
+    product.cso = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSO")];
 
     product.logo = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Logo URL")];
     product.service_offering = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSO")];
@@ -258,6 +262,7 @@ function createJson(ss) {
     product.service_model = Array.from(new Set(masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Service Model")].split("|"))).sort();
     product.deployment_model = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Deployment Model")];
     product.impact_level = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Impact Level")];
+    product.impact_level_number = getImpactLevelNumber(product.impact_level);
 
     // Build and sort before storing
     workArr = getItems(masterAuthVals, Array.from(new Set(masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Leveraged Systems")].split("|"))));
@@ -513,8 +518,8 @@ function createJson(ss) {
   productFilters.auth_type = getFilter("auth-type", masterAuthVals, MASTER_AUTHORIZATION_STATUS_HEADERS, "Authorization Type");
   productFilters.deployment_models = getFilter("deployment-model", masterAuthVals, MASTER_AUTHORIZATION_STATUS_HEADERS, "Deployment Model"); 
 
-  productFilters.small_business.push({ name: "Yes", class_name: "filter-small-business-Yes"});
-  productFilters.small_business.push({ name: "No", class_name: "filter-small-business-No"});
+  // productFilters.small_business.push({ name: "Yes", class_name: "filter-small-business-Yes"});
+  // productFilters.small_business.push({ name: "No", class_name: "filter-small-business-No"});
 
   productFilters.assessor = getFilter("assessor", masterAuthVals, MASTER_AUTHORIZATION_STATUS_HEADERS, "Current 3PAO ID");
 
@@ -834,6 +839,7 @@ function getItems(masterAuthVals, itemArray, inConst = "") {
           }
 
           item.impact_level = masterAuthVals[k][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Impact Level")];
+          item.impact_level_number = getImpactLevelNumber(item.impact_level);
          
           list.push(item);
           
@@ -1190,6 +1196,29 @@ function getFilterClassImpactAndOffering(arr) {
 
   return Array.from(new Set(classArr)).sort().join('');
 
+}
+
+/***************************************************************************************************/
+
+
+/**
+ * Super secret number to hide in front of the impact_level so that it doesn't sort by alpha
+ * 
+ * @param {inLevel} - Impact Level value
+ * @returns {literal} - 1 thorugh 4 for sorting
+ */
+function getImpactLevelNumber(inLevel) {
+
+  if(inLevel == "LI-SaaS") {
+    return "1";
+  }
+  if(inLevel == "Low") {
+    return "2";
+  }
+  if(inLevel == "Moderate") {
+    return "3";
+  }
+  return "4";
 }
 
 /***************************************************************************************************/
