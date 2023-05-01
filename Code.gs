@@ -715,7 +715,9 @@ function getFilter(inLabel, inVals, inHeaders, inCol) {
     filter.name = filterArr[i];
     filter.class_name = "filter-" + inLabel + "-" + filterArr[i].replace(REGEX, "-");
 
-    filters.push(filter);
+    if (filter.name != "") {
+      filters.push(filter);
+    }
   }
 
   return filters;
