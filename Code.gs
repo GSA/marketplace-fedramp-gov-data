@@ -282,8 +282,8 @@ function createJson(ss) {
     product.small_business = getYesNo(masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Small Business?")]);
     product.business_function = Array.from(new Set(masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSP Business Function")].split("|"))).sort();
 
-    product.service_last_90 = Array.from(new Set(masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Non-Recent Authorized Services")].split("|"))).sort();
-    product.all_others = Array.from(new Set(masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Recently Updated Authorized Services")].split("|"))).sort();
+    product.service_last_90 = Array.from(new Set(masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Recently Updated Authorized Services")].split("|"))).sort();
+    product.all_others = Array.from(new Set(masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Non-Recent Authorized Services")].split("|"))).sort();
 
     /**
      * Special processing for finding the 3 "latest" dates from all the below columns.
