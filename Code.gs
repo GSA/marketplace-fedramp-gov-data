@@ -93,7 +93,7 @@ function main() {
     return;
   }
 
-  //createJson(ss);
+  // createJson(ss);
   // l(createJson(ss));
   updateGitHubRepo(getGitHubSha(), createJson(ss));     // Create json, retrieve sha, update github
 }
@@ -220,10 +220,15 @@ function createJson(ss) {
   /**
    * Loop through values on this tab, filling fields.  Special processing generally happens at the bottom of the loop.
    */
-  for(var i = 1; i < masterAuthVals.length && 
-      masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")] != "" &&
-      masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSP")] != ""; i++) {
+
+  for(var i = 1; i < masterAuthVals.length; i++) {
   
+    if(masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")] == "" ||
+      masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSP")] == "" ||
+      masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Current Active Status?")] == "No Status Found") {
+        continue;
+    }
+
     product = {};
 
     product.id = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")];
@@ -715,7 +720,7 @@ function getFilter(inLabel, inVals, inHeaders, inCol) {
     filter.name = filterArr[i];
     filter.class_name = "filter-" + inLabel + "-" + filterArr[i].replace(REGEX, "-");
 
-    if (filter.name != "") {
+    if (filter.name != "" && filterArr[i] != "No Status Found") {
       filters.push(filter);
     }
   }
@@ -827,7 +832,8 @@ function getItems(masterAuthVals, itemArray, inConst = "") {
         /**
          * If ID matches, push an item onto the array
          */
-        if(itemArray[j] == masterAuthVals[k][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")]) {
+        if(itemArray[j] == masterAuthVals[k][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")] &&
+          masterAuthVals[k][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Current Active Status?")] != "No Status Found") {
 
           item = {}
           item.id = masterAuthVals[k][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")];
