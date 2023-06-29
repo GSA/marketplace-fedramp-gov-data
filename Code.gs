@@ -595,7 +595,7 @@ function createJson(ss) {
 
   /***************************************************************************************************/
 
-  return JSON.stringify(json);
+  return JSON.stringify(json, null);
 }
 
 /***************************************************************************************************/
@@ -952,13 +952,13 @@ function updateGitHubRepo(sha, json) {
   response = UrlFetchApp.fetch(requestUrl, {
     'method': 'PUT',
     'headers': {
-       'Accept': 'Accept: application/vnd.github+json',
+       'Accept': 'Accept: application/vnd.github.v3+json',
        'Authorization': Utilities.formatString('Bearer %s', github.accessToken)
     },
     'payload': JSON.stringify({
       'message': github.commitMessage,
       'sha': sha,
-      'content': Utilities.base64Encode(json)
+      'content': Utilities.base64Encode(json, Utilities.Charset.UTF_8)
     })
   })
 }
