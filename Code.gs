@@ -377,8 +377,14 @@ function createJson(ss) {
   /**
    * Loop through values on this tab, filling fields.  Special processing generally happens at the bottom of the loop.
    */
-  for(var i = 1; i < masterAgencyVals.length && masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Agency ID")] != "" && masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Authorizations Number")] != ""; i++) {
+  for(var i = 1; i < masterAgencyVals.length; i++) {
   
+    if(masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Agency ID")] == "" 
+    || masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Agency Name")] == "" 
+    || masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Authorizations Number")] == "") {
+      continue;
+    }
+
     agency = {};
 
     agency.id = masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Agency ID")];
@@ -459,8 +465,12 @@ function createJson(ss) {
   /**
    * Loop through values on this tab, filling fields.  Special processing generally happens at the bottom of the loop.
    */
-  for(var i = 1; i < master3paoVals.length && master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "3PAO ID#")] != ""; i++) {
+  for(var i = 1; i < master3paoVals.length; i++) {
   
+    if(master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "3PAO ID#")] == "") {
+      continue;
+    }
+
     assessor = {};
 
     assessor.id = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "3PAO ID#")];
