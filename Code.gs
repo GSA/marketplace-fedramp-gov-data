@@ -27,7 +27,16 @@ var errArr = [];
  *    +  = Match previous character(s) one-many times.
  *    /g = Global. Do for entire string (don't return after first occurance).
  */
-const REGEX = /[\W_]+/g;
+const REGEX_NON_WORDS = /[\W_]+/g;
+
+/**
+ * Using a regular expression to scrub eastern time zone dates 4am/5am because this spreadsheet
+ * is in Eastern Time and dates are being created with times, causing them to be 
+ * displayed differently for west coast.
+ * 2013-05-01T04:00:00.000Z would be 5/1 in Eastern Time (UTC-4), but 4/30 in Pacific Time (UTC-7)
+ */
+const REGEX_TIME_ZONE = /T0[0-9]:00:00.000Z/g;
+const REPLACEMENT_TIME_ZONE = "T20:00:00.000Z";
 
 /**
  * Sheet names go here here.  Add new sheet names and their columns to isValidSetup() function.
@@ -94,8 +103,10 @@ function main() {
   }
 
   // createJson(ss);
-  // l(createJson(ss));
-  updateGitHubRepo(getGitHubSha(), createJson(ss));     // Create json, retrieve sha, update github
+  // l(createJson(ss).replace(REGEX_TIME_ZONE,REPLACEMENT_TIME_ZONE));    
+  
+  // Create json, retrieve sha, update github
+  updateGitHubRepo(getGitHubSha(), createJson(ss).replace(REGEX_TIME_ZONE,REPLACEMENT_TIME_ZONE));     
 }
 
 /***************************************************************************************************/
@@ -307,19 +318,19 @@ function createJson(ss) {
     
     // Filter classes
     product.filter_classes = "";
-    product.filter_classes += " filter-status-" + product.status.replace(REGEX,"-");
-    product.filter_classes += " filter-impact-level-" + product.impact_level.replace(REGEX,"-");
-    product.filter_classes += " filter-auth-type-" + product.auth_type.replace(REGEX,"-");
-    product.filter_classes += " filter-deployment-model-" + product.deployment_model.replace(REGEX,"-");
-    product.filter_classes += " filter-small-business-" + product.small_business.replace(REGEX,"-");
-    product.filter_classes += " filter-assessor-" + product.independent_assessor.replace(REGEX,"-");
+    product.filter_classes += " filter-status-" + product.status.replace(REGEX_NON_WORDS,"-");
+    product.filter_classes += " filter-impact-level-" + product.impact_level.replace(REGEX_NON_WORDS,"-");
+    product.filter_classes += " filter-auth-type-" + product.auth_type.replace(REGEX_NON_WORDS,"-");
+    product.filter_classes += " filter-deployment-model-" + product.deployment_model.replace(REGEX_NON_WORDS,"-");
+    product.filter_classes += " filter-small-business-" + product.small_business.replace(REGEX_NON_WORDS,"-");
+    product.filter_classes += " filter-assessor-" + product.independent_assessor.replace(REGEX_NON_WORDS,"-");
 
     for(var j = 0; j < product.service_model.length; j++) {
-      product.filter_classes += " filter-service-model-" + product.service_model[j].replace(REGEX,"-");
+      product.filter_classes += " filter-service-model-" + product.service_model[j].replace(REGEX_NON_WORDS,"-");
     }
 
     for(var j = 0; j < product.business_function.length; j++) {
-      product.filter_classes += " filter-business-function-" + product.business_function[j].replace(REGEX,"-");
+      product.filter_classes += " filter-business-function-" + product.business_function[j].replace(REGEX_NON_WORDS,"-");
     }
 
     json.data.Products.push(product);             // Build array of Products
@@ -402,7 +413,7 @@ function createJson(ss) {
 
     // Filter classes
     agency.filter_classes = "";
-    agency.filter_classes += " filter-parent-agency-" + agency.parent.replace(REGEX,"-");
+    agency.filter_classes += " filter-parent-agency-" + agency.parent.replace(REGEX_NON_WORDS,"-");
     agency.filter_classes += getFilterClassBucket("authorization", agency.authorization);
     agency.filter_classes += getFilterClassBucket("reuse", agency.reuse);
     agency.filter_classes += getFilterClassImpactAndOffering(Array.from(new Set(agency.auths.concat(agency.procs))));
@@ -718,7 +729,7 @@ function getFilter(inLabel, inVals, inHeaders, inCol) {
     filter = {};
     
     filter.name = filterArr[i];
-    filter.class_name = "filter-" + inLabel + "-" + filterArr[i].replace(REGEX, "-");
+    filter.class_name = "filter-" + inLabel + "-" + filterArr[i].replace(REGEX_NON_WORDS, "-");
 
     if (filter.name != "" && filterArr[i] != "No Status Found") {
       filters.push(filter);
@@ -1198,8 +1209,8 @@ function getFilterClassImpactAndOffering(arr) {
   }
 
   for (var i = 0; i < arr.length; i++) {
-    classArr.push(" filter-impact-level-" + arr[i].impact_level.replace(REGEX,"-"));
-    classArr.push(" filter-status-" + arr[i].status.replace(REGEX,"-"));
+    classArr.push(" filter-impact-level-" + arr[i].impact_level.replace(REGEX_NON_WORDS,"-"));
+    classArr.push(" filter-status-" + arr[i].status.replace(REGEX_NON_WORDS,"-"));
   }
 
   return Array.from(new Set(classArr)).sort().join('');
