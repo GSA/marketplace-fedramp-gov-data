@@ -377,7 +377,7 @@ function createJson(ss) {
   /**
    * Loop through values on this tab, filling fields.  Special processing generally happens at the bottom of the loop.
    */
-  for(var i = 1; i < masterAgencyVals.length && masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Agency ID")] != ""; i++) {
+  for(var i = 1; i < masterAgencyVals.length && masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Agency ID")] != "" && masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Agency Name")] != "" && masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Authorizations Number")] != ""; i++) {
   
     agency = {};
 
