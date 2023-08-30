@@ -128,6 +128,8 @@ function createJson(ss) {
     },
     data: {
       "Metrics": {
+        ready: "", 
+        in_process: "", 
         total: "", 
         latest: []
       },
@@ -154,6 +156,8 @@ function createJson(ss) {
   initErrorCols(METRICS_SHEET);
 
   var metricsVals = ss.getSheetByName(METRICS_SHEET).getDataRange().getValues();
+  json.data.Metrics.ready = metricsVals[1][getCol(METRICS_HEADERS, "Ready")];
+  json.data.Metrics.in_process = metricsVals[1][getCol(METRICS_HEADERS, "In Process")];
   json.data.Metrics.total = metricsVals[1][getCol(METRICS_HEADERS, "Authorizations")];
 
   /***************************************************************************************************/
