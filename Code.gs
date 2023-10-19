@@ -28,6 +28,7 @@ var errArr = [];
  *    /g = Global. Do for entire string (don't return after first occurance).
  */
 const REGEX_NON_WORDS = /[\W_]+/g;
+const REGEX_EXCESSIVE_SPACE = /\s/g;
 
 /**
  * Using a regular expression to scrub eastern time zone dates 4am/5am because this spreadsheet
@@ -82,6 +83,7 @@ const STRING_80_BYTES = "                                                       
 const github = {
   'owner': 'GSA',
   'repo': 'marketplace-fedramp-gov-data',
+  // 'path': 'test.json',  
   'path': 'data.json',
   'branch': 'master',
   'accessToken': PropertiesService.getScriptProperties().getProperty('GIT_ACCESS_TOKEN'),
@@ -100,10 +102,7 @@ function main() {
 
   if(isValidSetup(ss) == false) {
     return;
-  }
-
-  // createJson(ss);
-  // l(createJson(ss).replace(REGEX_TIME_ZONE,REPLACEMENT_TIME_ZONE));    
+  }    
   
   // Create json, retrieve sha, update github
   updateGitHubRepo(getGitHubSha(), createJson(ss).replace(REGEX_TIME_ZONE,REPLACEMENT_TIME_ZONE));     
@@ -621,6 +620,7 @@ function createJson(ss) {
   /***************************************************************************************************/
 
   return JSON.stringify(json, null);
+
 }
 
 /***************************************************************************************************/
@@ -1201,7 +1201,7 @@ function concatParentSub(s1, s2) {
   s2 = s2 + STRING_80_BYTES;
   s2 = s2.slice(0,80);
 
-  return s1 + s2;
+  return (s1 + s2).replace(REGEX_NON_WORDS," ").trim();
 
 }
 
