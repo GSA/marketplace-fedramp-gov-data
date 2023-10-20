@@ -45,6 +45,7 @@ const REPLACEMENT_TIME_ZONE = "T20:00:00.000Z";
 const MASTER_AUTHORIZATION_STATUS_SHEET = "Master Authorization Status";
 const MASTER_AGENCY_TAB_SHEET           = "Master Agency Tab";
 const MASTER_3PAO_LIST_SHEET            = "Master 3PAO List";
+const INITIAL_ATOS_SHEET                = "Initial ATOs";
 const METRICS_SHEET                     = "Metrics";
 
 /**
@@ -53,6 +54,7 @@ const METRICS_SHEET                     = "Metrics";
 const MASTER_AUTHORIZATION_STATUS_HEADERS = ["FR ID#",	"CSP",	"CSO",	"Service Model",	"Authorization Type",	"Deployment Model",	"Impact Level",	"UEI Number",	"Current 3PAO ID",	"Security Contact Email",	"Sales Contact Email",	"Small Business?",	"Logo URL",	"CSP Website",	"CSO Description",	"CSP Business Function",	"In Process Initial Authorization Agency ID",	"In Process Initial Sub Agency ID",	"Current Active Status?",	"FR Ready Active?",	"FRR Most Recent Date",	"In Process JAB Review Active?",	"In Process JAB Review Most Recent Date",	"In Process Agency Review Active?",	"In Process Agency Review Most Recent Date",	"FedRAMP In Process PMO Review Active?",	"FedRAMP In Process PMO Review Most Recent Date",	"FedRAMP Authorized Active?",	"Non-Recent Authorized Services",	"Recently Updated Authorized Services",	"Authorizations",	"Reuse",	"Agency Authorizations",	"Reuse Agencies",	"Leveraged Systems", "Annual Assessment"];
 const MASTER_AGENCY_TAB_HEADERS = ["Agency ID",	"Agency Name",	"Sub Agency",	"E-mail",	"Logo URL",	"Website",	"Authorizations",	"Authorizations Number",	"Reuse",	"Reuse Number",	"In Process (Agency Review)",	"In Process (FedRAMP Review)","In Process (JAB Review)"];
 const MASTER_3PAO_LIST_HEADERS = ["3PAO ID#",	"Cert #",	"3PAO Name",	"POC Name",	"POC Email",	"Date Applied",	"A2LA Accreditation Date",	"FedRAMP Accreditation Date",	"Logo URL",	"Year Company Founded",	"Website URL",	"Primary Office Locations",	"Description of 3PAO Services",	"Consulting Services?",	"Description of Consulting Services",	"Additional Cyber Frameworks Your Company Is Accredited to Perform",	"Active?",	"CSPs providing consulting service to",	"Current Clients",	"Products Assessing (Number)"];
+const INITIAL_ATOS_HEADERS = ["FR ID#",	"Initial Authorization Agency ID",	"Agency Name (Keep Hidden)",	"Sub Agency ID",	"Sub Agency Name (Keep hidden)",	"Actual Authorizing Agency (keep hidden)",	"Actual Reusing Agency Name (keep hidden)",	"Agency ATO Date",	"Authorization Date",	"ATO Expiration",	"Annual Assessment Date",	"Authorizing Official",	"Agency POC Email(s)",	"Active?",	"Comments (include all AA change dates)",	"Authorization Year",	"Authorization Path",	"Authorization Timeline (in Days)"];
 const METRICS_HEADERS = ["FR ID", 	"Reuse ATOs", 	"Total ATOs", 	"Indirect Reuse", 	"ATOs", 	"Direct Reuse", 	"Total ATOs", 	"Indirect Reuse", 	"Ready", 	"In Process", 	"Authorizations"];
 
 
@@ -139,7 +141,8 @@ function createJson(ss) {
       },
       "Products": [],
       "Agencies": [],
-      "Assessors": []
+      "Assessors": [],
+      "AtoMapping": []
       }
   }
 
@@ -619,6 +622,44 @@ function createJson(ss) {
 
   /***************************************************************************************************/
 
+  /**
+   * AtoMapping
+   */
+
+  var atoRec = {
+    id: "",
+    agency_id: "",
+    ato_date: "",
+    auth_date: "",
+    exp_date: ""
+  }
+
+  l("   Agencies");
+  initErrorCols(INITIAL_ATOS_SHEET);
+
+  var initialAtoVals = ss.getSheetByName(INITIAL_ATOS_SHEET).getDataRange().getValues();
+
+  for(var i = 1; i < initialAtoVals.length; i++) {
+
+    if(initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Active?")] != "Y") {
+      continue;
+    }
+
+    atoRec = {};
+    
+    atoRec.id = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "FR ID#")];
+    atoRec.agency_id = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Actual Authorizing Agency (keep hidden)")];
+    atoRec.ato_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Agency ATO Date")];
+    atoRec.auth_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Authorization Date")];
+    atoRec.exp_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "ATO Expiration")];
+
+    json.data.AtoMapping.push(atoRec);    // Build array of Assessors
+  }
+
+  json.data.AtoMapping = quickSortOnObjectId(json.data.AtoMapping, 0, json.data.AtoMapping.length-1); 
+
+  /***************************************************************************************************/
+
   return JSON.stringify(json, null);
 
 }
@@ -900,7 +941,8 @@ function isValidSetup(ss) {
   if(isValidSheetColumns(ss, MASTER_AUTHORIZATION_STATUS_SHEET, MASTER_AUTHORIZATION_STATUS_HEADERS) == false 
   || isValidSheetColumns(ss, MASTER_AGENCY_TAB_SHEET, MASTER_AGENCY_TAB_HEADERS) == false 
   || isValidSheetColumns(ss, MASTER_3PAO_LIST_SHEET, MASTER_3PAO_LIST_HEADERS) == false
-  || isValidSheetColumns(ss, METRICS_SHEET, METRICS_HEADERS) == false) { 
+  || isValidSheetColumns(ss, METRICS_SHEET, METRICS_HEADERS) == false
+  || isValidSheetColumns(ss, INITIAL_ATOS_SHEET, INITIAL_ATOS_HEADERS) == false) { 
 
     return false;
   }
@@ -1078,6 +1120,57 @@ function partDate(arr, low, high)
 
 
 /**
+ * Standard recursive divide/conquor QuickSort to sort on ID field
+ * of Item objects.
+ * 
+ * @param {arr} - Array of Item objects to divide into partitions and compare
+ * @param {low} - Index of arr's lower bound
+ * @param {high} - Index of arr's upper bound
+ * @returns {arr} - Array to return
+ */
+function quickSortOnObjectId(arr, low, high) {
+  if (low < high) {
+
+    var p = partId(arr, low, high);
+    arr = quickSortOnObjectId(arr, low, p-1);
+    arr = quickSortOnObjectId(arr, p+1, high);
+  }
+  return arr;
+}
+
+/**
+ * Standard partition, pivot, and compare for QuickSort using id field of Item object.
+ * 
+ * @param {arr} - Array of Item objects
+ * @returns {arr} - Partitioned Array
+ */
+function partId(arr, low, high) {
+  var p = arr[high];
+  var i = (low - 1);
+  var temp;
+
+  for (var j = low; j <= high - 1; j++) {
+  
+    if (arr[j].id.toLowerCase() < p.id.toLowerCase()) {
+  
+      i++;
+  
+      temp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = temp;
+    }
+  }
+  
+  temp = arr[i+1];
+  arr[i+1] = arr[high];
+  arr[high] = temp;
+
+  return (i + 1);
+}
+
+/***************************************************************************************************/
+
+/**
  * Standard recursive divide/conquor QuickSort to sort on CSP field
  * of Item objects.
  * 
@@ -1086,8 +1179,7 @@ function partDate(arr, low, high)
  * @param {high} - Index of arr's upper bound
  * @returns {arr} - Array to return
  */
-function quickSortOnObjectCSP(arr, low, high)
-{
+function quickSortOnObjectCSP(arr, low, high) {
   if (low < high) {
 
     var p = partCSP(arr, low, high);
@@ -1106,8 +1198,7 @@ function quickSortOnObjectCSP(arr, low, high)
  * @param {arr} - Array of Item objects
  * @returns {arr} - Partitioned Array
  */
-function partCSP(arr, low, high)
-{
+function partCSP(arr, low, high) {
   var p = arr[high];
   var i = (low - 1);
   var temp;
