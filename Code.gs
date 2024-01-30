@@ -46,6 +46,7 @@ const MASTER_AUTHORIZATION_STATUS_SHEET = "Master Authorization Status";
 const MASTER_AGENCY_TAB_SHEET           = "Master Agency Tab";
 const MASTER_3PAO_LIST_SHEET            = "Master 3PAO List";
 const INITIAL_ATOS_SHEET                = "Initial ATOs";
+const REUSE_ATOS_SHEET                  = "Reuse ATOs";
 const METRICS_SHEET                     = "Metrics";
 
 /**
@@ -55,6 +56,7 @@ const MASTER_AUTHORIZATION_STATUS_HEADERS = ["FR ID#",	"CSP",	"CSO",	"Service Mo
 const MASTER_AGENCY_TAB_HEADERS = ["Agency ID",	"Agency Name",	"Sub Agency",	"E-mail",	"Logo URL",	"Website",	"Authorizations",	"Authorizations Number",	"Reuse",	"Reuse Number",	"In Process (Agency Review)",	"In Process (FedRAMP Review)","In Process (JAB Review)"];
 const MASTER_3PAO_LIST_HEADERS = ["3PAO ID#",	"Cert #",	"3PAO Name",	"POC Name",	"POC Email",	"Date Applied",	"A2LA Accreditation Date",	"FedRAMP Accreditation Date",	"Logo URL",	"Year Company Founded",	"Website URL",	"Primary Office Locations",	"Description of 3PAO Services",	"Consulting Services?",	"Description of Consulting Services",	"Additional Cyber Frameworks Your Company Is Accredited to Perform",	"Active?",	"CSPs providing consulting service to",	"Current Clients",	"Products Assessing (Number)"];
 const INITIAL_ATOS_HEADERS = ["FR ID#",	"Initial Authorization Agency ID",	"Agency Name (Keep Hidden)",	"Sub Agency ID",	"Sub Agency Name (Keep hidden)",	"Actual Authorizing Agency (keep hidden)",	"Actual Reusing Agency Name (keep hidden)",	"Agency ATO Date",	"Authorization Date",	"ATO Expiration",	"Annual Assessment Date",	"Authorizing Official",	"Agency POC Email(s)",	"Active?",	"Comments (include all AA change dates)",	"Authorization Year",	"Authorization Path",	"Authorization Timeline (in Days)"];
+const REUSE_ATOS_HEADERS = ["FR ID",	"Agency (Keep Hidden)",	"Agency ID #",	"Sub Agency Name (Keep hidden)",	"Sub Agency #",	"Actual Reusing Agency Name (keep hidden)",	"Actual Reusing Agency (keep hidden)",	"Agency Authorization",	"Authorization Logged Date",	"ATO Expiration",	"AO",	"Agency POC Email(s)",	"Active?"];
 const METRICS_HEADERS = ["FR ID", 	"Reuse ATOs", 	"Total ATOs", 	"Indirect Reuse", 	"ATOs", 	"Direct Reuse", 	"Total ATOs", 	"Indirect Reuse", 	"Ready", 	"In Process", 	"Authorizations"];
 
 
@@ -116,7 +118,6 @@ function main() {
 /**
  * 
  * 
- * 
  */
 function createJson(ss) {
 
@@ -142,7 +143,8 @@ function createJson(ss) {
       "Products": [],
       "Agencies": [],
       "Assessors": [],
-      "AtoMapping": []
+      "AtoMapping": [],
+      "ReuseMapping": []
       }
   }
 
@@ -634,7 +636,7 @@ function createJson(ss) {
     exp_date: ""
   }
 
-  l("   Agencies");
+  l("   Initial ATOs");
   initErrorCols(INITIAL_ATOS_SHEET);
 
   var initialAtoVals = ss.getSheetByName(INITIAL_ATOS_SHEET).getDataRange().getValues();
@@ -657,6 +659,45 @@ function createJson(ss) {
   }
 
   json.data.AtoMapping = quickSortOnObjectId(json.data.AtoMapping, 0, json.data.AtoMapping.length-1); 
+
+  /***************************************************************************************************/
+
+
+/**
+   * reuseMapping
+   */
+
+  var reuseRec = {
+    id: "",
+    agency_id: "",
+    ato_date: "",
+    auth_date: "",
+    exp_date: ""
+  }
+
+  l("   Reuse ATOs");
+  initErrorCols(REUSE_ATOS_SHEET);
+
+  var reuseVals = ss.getSheetByName(REUSE_ATOS_SHEET).getDataRange().getValues();
+
+  for(var i = 1; i < reuseVals.length; i++) {
+
+    if(reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Active?")] != "Y") {
+      continue;
+    }
+
+    reuseRec = {};
+
+    reuseRec.id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "FR ID")];
+    reuseRec.agency_id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Agency (Keep Hidden)")];
+    reuseRec.ato_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Agency Authorization")];
+    reuseRec.auth_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Authorization Logged Date")];
+    reuseRec.exp_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "ATO Expiration")];
+
+    json.data.ReuseMapping.push(reuseRec);    // Build array of Assessors
+  }
+
+  json.data.ReuseMapping = quickSortOnObjectId(json.data.ReuseMapping, 0, json.data.ReuseMapping.length-1); 
 
   /***************************************************************************************************/
 
@@ -942,7 +983,8 @@ function isValidSetup(ss) {
   || isValidSheetColumns(ss, MASTER_AGENCY_TAB_SHEET, MASTER_AGENCY_TAB_HEADERS) == false 
   || isValidSheetColumns(ss, MASTER_3PAO_LIST_SHEET, MASTER_3PAO_LIST_HEADERS) == false
   || isValidSheetColumns(ss, METRICS_SHEET, METRICS_HEADERS) == false
-  || isValidSheetColumns(ss, INITIAL_ATOS_SHEET, INITIAL_ATOS_HEADERS) == false) { 
+  || isValidSheetColumns(ss, INITIAL_ATOS_SHEET, INITIAL_ATOS_HEADERS) == false
+  || isValidSheetColumns(ss, REUSE_ATOS_SHEET, REUSE_ATOS_HEADERS) == false) { 
 
     return false;
   }
