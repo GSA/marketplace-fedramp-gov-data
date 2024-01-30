@@ -689,7 +689,7 @@ function createJson(ss) {
     reuseRec = {};
 
     reuseRec.id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "FR ID")];
-    reuseRec.agency_id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Agency (Keep Hidden)")];
+    reuseRec.agency_id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Agency ID #")];
     reuseRec.ato_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Agency Authorization")];
     reuseRec.auth_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Authorization Logged Date")];
     reuseRec.exp_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "ATO Expiration")];
