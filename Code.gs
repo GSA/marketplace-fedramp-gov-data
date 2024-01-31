@@ -365,6 +365,7 @@ function createJson(ss) {
 
     id: String,
     parent: String,
+    sub_id: String,
     sub: String,
     csp: String,
     logo: String,
@@ -385,6 +386,7 @@ function createJson(ss) {
   /**
    * Loop through values on this tab, filling fields.  Special processing generally happens at the bottom of the loop.
    */
+
   for(var i = 1; i < masterAgencyVals.length; i++) {
   
     if(masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS,"Agency ID")] == "" 
@@ -400,8 +402,11 @@ function createJson(ss) {
     agency.sub = masterAgencyVals[i][getCol(MASTER_AGENCY_TAB_HEADERS, "Sub Agency")];
     
     if(agency.parent == agency.sub) {  // Sub and Parent the same?
-
       agency.sub = "";                 // Remove. We don't want it displayed twice on the webpage.
+    } 
+
+    if(agency.sub != "") {
+      agency.sub_id = agency.id;
     }
 
     agency.csp = concatParentSub(agency.parent, agency.sub);
@@ -670,6 +675,7 @@ function createJson(ss) {
   var reuseRec = {
     id: "",
     agency_id: "",
+    sub_id: "",
     ato_date: "",
     auth_date: "",
     exp_date: ""
@@ -690,6 +696,7 @@ function createJson(ss) {
 
     reuseRec.id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "FR ID")];
     reuseRec.agency_id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Agency ID #")];
+    reuseRec.sub_id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Sub Agency #")];
     reuseRec.ato_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Agency Authorization")];
     reuseRec.auth_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Authorization Logged Date")];
     reuseRec.exp_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "ATO Expiration")];
