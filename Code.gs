@@ -636,6 +636,7 @@ function createJson(ss) {
   var atoRec = {
     id: "",
     agency_id: "",
+    sub_id: "",
     ato_date: "",
     auth_date: "",
     exp_date: "",
@@ -660,7 +661,7 @@ function createJson(ss) {
     atoRec.ato_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Agency ATO Date")];
     atoRec.auth_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Authorization Date")];
     atoRec.exp_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "ATO Expiration")];
-    atoRec.exp_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Annual Assessment Date")];
+    atoRec.assessment_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Annual Assessment Date")];
 
     json.data.AtoMapping.push(atoRec);    // Build array of Assessors
   }
