@@ -636,7 +636,8 @@ function createJson(ss) {
   var atoRec = {
     id: "",
     agency_id: "",
-    sub_id: "",
+    parent: "",
+    sub: "",
     ato_date: "",
     auth_date: "",
     exp_date: "",
@@ -658,6 +659,8 @@ function createJson(ss) {
     
     atoRec.id = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "FR ID#")];
     atoRec.agency_id = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Actual Authorizing Agency (keep hidden)")];
+    atoRec.parent = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Agency Name (Keep Hidden)")];
+    atoRec.sub = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Sub Agency Name (Keep hidden)")];
     atoRec.ato_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Agency ATO Date")];
     atoRec.auth_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "Authorization Date")];
     atoRec.exp_date = initialAtoVals[i][getCol(INITIAL_ATOS_HEADERS, "ATO Expiration")];
@@ -678,7 +681,9 @@ function createJson(ss) {
   var reuseRec = {
     id: "",
     agency_id: "",
+    parent: "",
     sub_id: "",
+    sub: "",
     ato_date: "",
     auth_date: "",
     exp_date: ""
@@ -699,7 +704,9 @@ function createJson(ss) {
 
     reuseRec.id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "FR ID")];
     reuseRec.agency_id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Agency ID #")];
+    reuseRec.parent = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Agency (Keep Hidden)")];
     reuseRec.sub_id = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Sub Agency #")];
+    reuseRec.sub = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Sub Agency Name (Keep hidden)")];
     reuseRec.ato_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Agency Authorization")];
     reuseRec.auth_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "Authorization Logged Date")];
     reuseRec.exp_date = reuseVals[i][getCol(REUSE_ATOS_HEADERS, "ATO Expiration")];
@@ -1398,4 +1405,3 @@ function getImpactLevelNumber(inLevel) {
 }
 
 /***************************************************************************************************/
-
