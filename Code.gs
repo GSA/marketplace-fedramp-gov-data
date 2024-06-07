@@ -493,7 +493,7 @@ function createJson(ss) {
     assessor.logo = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "Logo URL")];
     assessor.products_assessing = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "Products Assessing (Number)")];
 
-    assessor.accredited_since = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "A2LA Accreditation Date")];
+    assessor.accredited_since = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "FedRAMP Accreditation Date")];
     assessor.poc = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "POC Name")];
     assessor.email = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "POC Email")];
     assessor.founded = master3paoVals[i][getCol(MASTER_3PAO_LIST_HEADERS, "Year Company Founded")];
