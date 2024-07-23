@@ -52,7 +52,7 @@ const METRICS_SHEET                     = "Metrics";
 /**
  * Arrays of sheet columns for each sheet above
  */
-const MASTER_AUTHORIZATION_STATUS_HEADERS = ["FR ID#",	"CSP",	"CSO",	"Service Model",	"Authorization Type",	"Deployment Model",	"Impact Level",	"UEI Number",	"Current 3PAO ID",	"Security Contact Email",	"Sales Contact Email",	"Small Business?",	"Logo URL",	"CSP Website",	"CSO Description",	"CSP Business Function",	"In Process Initial Authorization Agency ID",	"In Process Initial Sub Agency ID",	"Current Active Status?",	"FR Ready Active?",	"FRR Most Recent Date",	"In Process JAB Review Active?",	"In Process JAB Review Most Recent Date",	"In Process Agency Review Active?",	"In Process Agency Review Most Recent Date",	"FedRAMP In Process PMO Review Active?",	"FedRAMP In Process PMO Review Most Recent Date",	"FedRAMP Authorized Active?",	"Non-Recent Authorized Services",	"Recently Updated Authorized Services",	"Authorizations",	"Reuse",	"Agency Authorizations",	"Reuse Agencies",	"Leveraged Systems", "Annual Assessment"];
+const MASTER_AUTHORIZATION_STATUS_HEADERS = ["FR ID#",	"CSP",	"CSO",	"Service Model",	"Authorization Path",	"Deployment Model",	"Impact Level",	"UEI Number",	"Current 3PAO ID",	"Security Contact Email",	"Sales Contact Email",	"Small Business?",	"Logo URL",	"CSP Website",	"CSO Description",	"CSP Business Function",	"In Process Initial Authorization Agency ID",	"In Process Initial Sub Agency ID",	"Current Active Status?",	"FR Ready Active?",	"FRR Most Recent Date",	"In Process JAB Review Active?",	"In Process JAB Review Most Recent Date", "In Process Program Review Active?", "In Process Program Review Most Recent Date",	"In Process Agency Review Active?",	"In Process Agency Review Most Recent Date",	"FedRAMP In Process PMO Review Active?",	"FedRAMP In Process PMO Review Most Recent Date",	"FedRAMP Authorized Active?",	"Non-Recent Authorized Services",	"Recently Updated Authorized Services",	"Authorizations",	"Reuse",	"Agency Authorizations",	"Reuse Agencies",	"Leveraged Systems", "Annual Assessment"];
 const MASTER_AGENCY_TAB_HEADERS = ["Agency ID",	"Agency Name",	"Sub Agency",	"E-mail",	"Logo URL",	"Website",	"Authorizations",	"Authorizations Number",	"Reuse",	"Reuse Number",	"In Process (Agency Review)",	"In Process (FedRAMP Review)","In Process (JAB Review)"];
 const MASTER_3PAO_LIST_HEADERS = ["3PAO ID#",	"Cert #",	"3PAO Name",	"POC Name",	"POC Email",	"Date Applied",	"A2LA Accreditation Date",	"FedRAMP Accreditation Date",	"Logo URL",	"Year Company Founded",	"Website URL",	"Primary Office Locations",	"Description of 3PAO Services",	"Consulting Services?",	"Description of Consulting Services",	"Additional Cyber Frameworks Your Company Is Accredited to Perform",	"Active?",	"CSPs providing consulting service to",	"Current Clients",	"Products Assessing (Number)"];
 const INITIAL_ATOS_HEADERS = ["FR ID#",	"Initial Authorization Agency ID",	"Agency Name (Keep Hidden)",	"Sub Agency ID",	"Sub Agency Name (Keep hidden)",	"Actual Authorizing Agency (keep hidden)",	"Actual Reusing Agency Name (keep hidden)",	"Agency ATO Date",	"Authorization Date",	"ATO Expiration",	"Annual Assessment Date",	"Authorizing Official",	"Agency POC Email(s)",	"Active?",	"Comments (include all AA change dates)",	"Authorization Year",	"Authorization Path",	"Authorization Timeline (in Days)"];
@@ -65,12 +65,14 @@ const METRICS_HEADERS = ["FR ID", 	"Reuse ATOs", 	"Total ATOs", 	"Indirect Reuse
  */
 const NO_FRR = "No FRR Date";
 const NO_JAB = "Not Active";
+const NO_PROG = "Not Active";
 const NO_AGENCY = "Not Agency Partnered";
 const NO_PMO = "Not In Process";
 const NO_AUTH = "Not Authorized";
 
 const STATUS_FRR = "Now FedRAMP Ready";
 const STATUS_JAB = "Now in JAB Review";
+const STATUS_PROG = "Now in Program Review";
 const STATUS_AGENCY = "Now in Agency Review";
 const STATUS_PMO = "Now in PMO Review";
 const STATUS_AUTH = "Now Authorized";
@@ -185,19 +187,17 @@ function createJson(ss) {
     authorization: String,
     reuse: String,
 
-    // TODO - Maybe?
-    //a_status: String,
-    //f_process: String,
-
-    a_ready_status: String,
-    a_ready_date: String,
-    a_ip_jab_status: String,
-    a_ip_jab_date: String,
-    a_ip_agency_status: String,
-    a_ip_agency_date: String,
-    a_ip_pmo_status: String,
-    a_ip_pmo_date: String,
-    a_auth_date: String,
+    ready_status: String,
+    ready_date: String,
+    ip_jab_status: String,
+    ip_jab_date: String,
+    ip_prog_status: String,
+    ip_prog_date: String,
+    ip_agency_status: String,
+    ip_agency_date: String,
+    ip_pmo_status: String,
+    ip_pmo_date: String,
+    auth_date: String,
 
     auth_type: String,
     fedramp_ready: String,
@@ -250,6 +250,7 @@ function createJson(ss) {
 
     product = {};
 
+
     product.id = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FR ID#")];
     product.name = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSP")];
     product.csp = product.name; // To utilize sort
@@ -265,13 +266,15 @@ function createJson(ss) {
     product.ready_date = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FRR Most Recent Date")];
     product.ip_jab_status = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process JAB Review Active?")];
     product.ip_jab_date = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process JAB Review Most Recent Date")];
+    product.ip_prog_status = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Program Review Active?")];
+    product.ip_prog_date = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Program Review Most Recent Date")];
     product.ip_agency_status = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Agency Review Active?")];
     product.ip_agency_date = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Agency Review Most Recent Date")];
     product.ip_pmo_status = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FedRAMP In Process PMO Review Active?")];
     product.ip_pmo_date = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FedRAMP In Process PMO Review Most Recent Date")];
     product.auth_date = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FedRAMP Authorized Active?")];
 
-    product.auth_type = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Authorization Type")];
+    product.auth_type = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Authorization Path")];
     product.fedramp_ready = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FRR Most Recent Date")];
 
     product.partnering_agency =  masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Initial Authorization Agency ID")];
@@ -315,6 +318,7 @@ function createJson(ss) {
     workLatest = getLatest(product.id, product.logo, product.service_offering, 
           masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FRR Most Recent Date")],
           masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process JAB Review Most Recent Date")],
+          masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Program Review Most Recent Date")],
           masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Agency Review Most Recent Date")],
           masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FedRAMP In Process PMO Review Most Recent Date")],
           masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FedRAMP Authorized Active?")]);
@@ -554,7 +558,8 @@ function createJson(ss) {
   productFilters.impact_level.push({ name: "Moderate",class_name: "filter-impact-level-Moderate"});
   productFilters.impact_level.push({ name: "High",    class_name: "filter-impact-level-High"});
 
-  productFilters.auth_type = getFilter("auth-type", masterAuthVals, MASTER_AUTHORIZATION_STATUS_HEADERS, "Authorization Type");
+  productFilters.auth_type = getFilter("auth-type", masterAuthVals, MASTER_AUTHORIZATION_STATUS_HEADERS, "Authorization Path");
+  productFilters.auth_type.splice(productFilters.auth_type.indexOf("Program"),1);
   productFilters.deployment_models = getFilter("deployment-model", masterAuthVals, MASTER_AUTHORIZATION_STATUS_HEADERS, "Deployment Model"); 
 
   // productFilters.small_business.push({ name: "Yes", class_name: "filter-small-business-Yes"});
@@ -735,7 +740,7 @@ function createJson(ss) {
  * @param {auth} - Possible date (Auth Review)
  * @returns {Object} - Latest date and its "status" (description of date)
  */
-function getLatest(id, logo, cso, frr, jab, agency, pmo, auth) {
+function getLatest(id, logo, cso, frr, jab, prog, agency, pmo, auth) {
 
   var rec = {
     id: String,
@@ -746,7 +751,7 @@ function getLatest(id, logo, cso, frr, jab, agency, pmo, auth) {
   }
 
   // No good dates? Return.
-  if(frr == NO_FRR && jab == NO_JAB && agency == NO_AGENCY && pmo == NO_PMO && auth == NO_AUTH) {
+  if(frr == NO_FRR && jab == NO_JAB && prog == NO_PROG && agency == NO_AGENCY && pmo == NO_PMO && auth == NO_AUTH) {
 
     return rec;
   }
@@ -756,9 +761,10 @@ function getLatest(id, logo, cso, frr, jab, agency, pmo, auth) {
   rec.cso = cso;
 
   // Find latest date
-  var item = maxDate(maxDate(maxDate(maxDate(
+  var item = maxDate(maxDate(maxDate(maxDate(maxDate(
     {date: scrubNo(frr),    status: STATUS_FRR}, 
     {date: scrubNo(jab),    status: STATUS_JAB}), 
+    {date: scrubNo(prog),   status: STATUS_PROG}), 
     {date: scrubNo(agency), status: STATUS_AGENCY}), 
     {date: scrubNo(pmo),    status: STATUS_PMO}), 
     {date: scrubNo(auth),   status: STATUS_AUTH});
@@ -780,7 +786,7 @@ function getLatest(id, logo, cso, frr, jab, agency, pmo, auth) {
  */
 function scrubNo(inDate) {
 
-  if(inDate == NO_FRR || inDate == NO_JAB || inDate == NO_AGENCY || inDate == NO_PMO || inDate == NO_AUTH) {
+  if(inDate == NO_FRR || inDate == NO_JAB || inDate == NO_PROG || inDate == NO_AGENCY || inDate == NO_PMO || inDate == NO_AUTH) {
 
     return "";
   }
