@@ -52,7 +52,7 @@ const METRICS_SHEET                     = "Metrics";
 /**
  * Arrays of sheet columns for each sheet above
  */
-const MASTER_AUTHORIZATION_STATUS_HEADERS = ["FR ID#",	"CSP",	"CSO",	"Service Model",	"Authorization Path",	"Deployment Model",	"Impact Level",	"UEI Number",	"Current 3PAO ID",	"Security Contact Email",	"Sales Contact Email",	"Small Business?",	"Logo URL",	"CSP Website",	"CSO Description",	"CSP Business Function",	"In Process Initial Authorization Agency ID",	"In Process Initial Sub Agency ID",	"Current Active Status?",	"FR Ready Active?",	"FRR Most Recent Date",	"In Process JAB Review Active?",	"In Process JAB Review Most Recent Date", "In Process Program Review Active?", "In Process Program Review Most Recent Date",	"In Process Agency Review Active?",	"In Process Agency Review Most Recent Date",	"FedRAMP In Process PMO Review Active?",	"FedRAMP In Process PMO Review Most Recent Date",	"FedRAMP Authorized Active?",	"Non-Recent Authorized Services",	"Recently Updated Authorized Services",	"Authorizations",	"Reuse",	"Agency Authorizations",	"Reuse Agencies",	"Leveraged Systems", "Annual Assessment"];
+const MASTER_AUTHORIZATION_STATUS_HEADERS = ["FR ID#",	"CSP",	"CSO",	"Service Model",	"Authorization Path",	"Deployment Model",	"Impact Level",	"UEI Number",	"Current 3PAO ID",	"Security Contact Email",	"Sales Contact Email",	"Small Business?",	"Logo URL",	"CSP Website",	"CSO Description",	"CSP Business Function", "Additional Information",	"In Process Initial Authorization Agency ID",	"In Process Initial Sub Agency ID",	"Current Active Status?",	"FR Ready Active?",	"FRR Most Recent Date",	"In Process JAB Review Active?",	"In Process JAB Review Most Recent Date", "In Process Program Review Active?", "In Process Program Review Most Recent Date", "In Process Program Review 2 Active?", "In Process Program Review 2 Most Recent Date",	"In Process Agency Review Active?",	"In Process Agency Review Most Recent Date",	"FedRAMP In Process PMO Review Active?",	"FedRAMP In Process PMO Review Most Recent Date",	"FedRAMP Authorized Active?",	"Non-Recent Authorized Services",	"Recently Updated Authorized Services",	"Authorizations",	"Reuse",	"Agency Authorizations",	"Reuse Agencies",	"Leveraged Systems", "Annual Assessment"];
 const MASTER_AGENCY_TAB_HEADERS = ["Agency ID",	"Agency Name",	"Sub Agency",	"E-mail",	"Logo URL",	"Website",	"Authorizations",	"Authorizations Number",	"Reuse",	"Reuse Number",	"In Process (Agency Review)",	"In Process (FedRAMP Review)","In Process (JAB Review)"];
 const MASTER_3PAO_LIST_HEADERS = ["3PAO ID#",	"Cert #",	"3PAO Name",	"POC Name",	"POC Email",	"Date Applied",	"A2LA Accreditation Date",	"FedRAMP Accreditation Date",	"Logo URL",	"Year Company Founded",	"Website URL",	"Primary Office Locations",	"Description of 3PAO Services",	"Consulting Services?",	"Description of Consulting Services",	"Additional Cyber Frameworks Your Company Is Accredited to Perform",	"Active?",	"CSPs providing consulting service to",	"Current Clients",	"Products Assessing (Number)"];
 const INITIAL_ATOS_HEADERS = ["FR ID#",	"Initial Authorization Agency ID",	"Agency Name (Keep Hidden)",	"Sub Agency ID",	"Sub Agency Name (Keep hidden)",	"Actual Authorizing Agency (keep hidden)",	"Actual Reusing Agency Name (keep hidden)",	"Agency ATO Date",	"Authorization Date",	"ATO Expiration",	"Annual Assessment Date",	"Authorizing Official",	"Agency POC Email(s)",	"Active?",	"Comments (include all AA change dates)",	"Authorization Year",	"Authorization Path",	"Authorization Timeline (in Days)"];
@@ -66,7 +66,7 @@ const METRICS_HEADERS = ["FR ID", 	"Reuse ATOs", 	"Total ATOs", 	"Indirect Reuse
 const NO_FRR = "No FRR Date";
 const NO_JAB = "Not Active";
 const NO_PROG = "Not Active";
-const NO_AGENCY = "Not Agency Partnered";
+const NO_AGENCY = "Not Active";
 const NO_PMO = "Not In Process";
 const NO_AUTH = "Not Authorized";
 
@@ -89,8 +89,7 @@ const STRING_80_BYTES = "                                                       
 const github = {
   'owner': 'GSA',
   'repo': 'marketplace-fedramp-gov-data',
-  // 'path': 'test.json',  
-  'path': 'data.json',
+  'path': PropertiesService.getScriptProperties().getProperty('GIT_FILENAME'),
   'branch': 'master',
   'accessToken': PropertiesService.getScriptProperties().getProperty('GIT_ACCESS_TOKEN'),
   'commitMessage': Utilities.formatString('Published on %s', Utilities.formatDate(new Date(), 'America/New_York', 'yyyy-MM-dd HH:mm:ss'))
@@ -193,6 +192,7 @@ function createJson(ss) {
     ip_jab_date: String,
     ip_prog_status: String,
     ip_prog_date: String,
+    ip_prog_date2: String,
     ip_agency_status: String,
     ip_agency_date: String,
     ip_pmo_status: String,
@@ -217,6 +217,7 @@ function createJson(ss) {
     agency_reuse: [],
 
     service_desc: String,
+    fedramp_msg: String,
     sales_email: String,
     security_email: String,
     website: String,
@@ -268,6 +269,7 @@ function createJson(ss) {
     product.ip_jab_date = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process JAB Review Most Recent Date")];
     product.ip_prog_status = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Program Review Active?")];
     product.ip_prog_date = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Program Review Most Recent Date")];
+    product.ip_prog_date2 = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Program Review 2 Most Recent Date")];
     product.ip_agency_status = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Agency Review Active?")];
     product.ip_agency_date = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "In Process Agency Review Most Recent Date")];
     product.ip_pmo_status = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "FedRAMP In Process PMO Review Active?")];
@@ -302,6 +304,7 @@ function createJson(ss) {
     product.agency_reuse = Array.from(new Set(masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Reuse Agencies")].split("|"))).sort();
 
     product.service_desc = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSO Description")];
+    product.fedramp_msg = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Additional Information")];
     product.sales_email = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Sales Contact Email")];
     product.security_email = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "Security Contact Email")];
     product.website = masterAuthVals[i][getCol(MASTER_AUTHORIZATION_STATUS_HEADERS, "CSP Website")];
