@@ -1,5 +1,5 @@
 /**
- * 
+ * new comment here bruv
  * Maintain this script with github.com/gsa/marketplace-fedramp-gov-data
  * 
  * In "Project Settings" (gear icon to left), maintain the script properties variable for the account publishing updates.
@@ -72,7 +72,7 @@ const NO_AUTH = "Not Authorized";
 
 const STATUS_FRR = "Now FedRAMP Ready";
 const STATUS_JAB = "Now in JAB Review";
-const STATUS_PROG = "Now in Program Review";
+const STATUS_PROG = "20x Phase One Pilot";
 const STATUS_AGENCY = "Now in Agency Review";
 const STATUS_PMO = "Now in PMO Review";
 const STATUS_AUTH = "Now Authorized";
@@ -556,6 +556,8 @@ function createJson(ss) {
   productFilters.business_function = getFilter("business-function", masterAuthVals, MASTER_AUTHORIZATION_STATUS_HEADERS, "CSP Business Function");
   productFilters.service_model = getFilter("service-model", masterAuthVals, MASTER_AUTHORIZATION_STATUS_HEADERS, "Service Model"); 
 
+  productFilters.impact_level.push({ name: "20x Low", class_name: "filter-impact-level-20x-Low"});
+  productFilters.impact_level.push({ name: "20x Moderate", class_name: "filter-impact-level-20x-Moderate"});
   productFilters.impact_level.push({ name: "LI-SaaS", class_name: "filter-impact-level-LI-SaaS"});
   productFilters.impact_level.push({ name: "Low",     class_name: "filter-impact-level-Low"});
   productFilters.impact_level.push({ name: "Moderate",class_name: "filter-impact-level-Moderate"});
@@ -603,6 +605,8 @@ function createJson(ss) {
   agencyFilters.reuse.push({ name: "21+", class_name: "filter-reuse-4"});
 
 
+  agencyFilters.impact_level.push({ name: "20x Low", class_name: "filter-impact-level-20x-Low"});
+  agencyFilters.impact_level.push({ name: "20x Moderate", class_name: "filter-impact-level-20x-Moderate"});
   agencyFilters.impact_level.push({ name: "LI-SaaS", class_name: "filter-impact-level-LI-SaaS"});
   agencyFilters.impact_level.push({ name: "Low",     class_name: "filter-impact-level-Low"});
   agencyFilters.impact_level.push({ name: "Moderate",class_name: "filter-impact-level-Moderate"});
@@ -1218,19 +1222,19 @@ function partId(arr, low, high) {
   var temp;
 
   for (var j = low; j <= high - 1; j++) {
-  
-    if (arr[j].id.toLowerCase() < p.id.toLowerCase()) {
-  
+    var currentId = (arr[j].id || "").toString().toLowerCase();
+    var pivotId = (p.id || "").toString().toLowerCase();
+
+    if (currentId < pivotId) {
       i++;
-  
       temp = arr[i];
       arr[i] = arr[j];
       arr[j] = temp;
     }
   }
-  
-  temp = arr[i+1];
-  arr[i+1] = arr[high];
+
+  temp = arr[i + 1];
+  arr[i + 1] = arr[high];
   arr[high] = temp;
 
   return (i + 1);
@@ -1397,20 +1401,26 @@ function getFilterClassImpactAndOffering(arr) {
  * Super secret number to hide in front of the impact_level so that it doesn't sort by alpha
  * 
  * @param {inLevel} - Impact Level value
- * @returns {literal} - 1 thorugh 4 for sorting
+ * @returns {literal} - 1 thorugh 5 for sorting
  */
 function getImpactLevelNumber(inLevel) {
 
-  if(inLevel == "LI-SaaS") {
+  if(inLevel == "20x-Low") {
     return "1";
   }
-  if(inLevel == "Low") {
+  if(inLevel == "20x-Moderate") {
     return "2";
   }
-  if(inLevel == "Moderate") {
+  if(inLevel == "LI-SaaS") {
     return "3";
   }
-  return "4";
+  if(inLevel == "Low") {
+    return "4";
+  }
+  if(inLevel == "Moderate") {
+    return "5";
+  }
+  return "6";
 }
 
 /***************************************************************************************************/
